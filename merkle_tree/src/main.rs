@@ -11,7 +11,7 @@ struct Node {
 impl Node {
     fn new(left: Option<Box<Node>>, right: Option<Box<Node>>, data: Option<&[u8]>) -> Self {
         let mut hasher = Sha256::new();
-        match (left, right) {
+        match (left.clone(), right.clone()) {
             (Some(l), Some(r)) => {
                 hasher.update(&l.hash);
                 hasher.update(&r.hash);
@@ -59,8 +59,19 @@ fn build_merkle_tree(data_blocks: Vec<&[u8]>) -> Node {
 }
 
 fn main() {
-    let data_blocks = vec![b"block1", b"block2", b"block3", b"block4"];
+    let mut hasher1 = Sha256::new();
+    let mut hasher2 = Sha256::new();
+    let mut hasher3 = Sha256::new();
 
-    let merkle_root = build_merkle_tree(data_blocks);
+    hasher1.update(b"block1");
+    hasher2.update(b"block2");
+    hasher3.update(b"block3");
+
+    let result1 = hasher1.finalize();
+    let result2 = hasher2.finalize();
+    let result3 = hasher3.finalize();
+
+    let merkle_root =
+        build_merkle_tree([result1.as_slice(), result2.as_slice(), result3.as_slice()].to_vec());
     println!("Merkle Root Hash: {:?}", merkle_root);
 }
